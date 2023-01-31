@@ -42,7 +42,8 @@ export const extractLongestCommonProject = (projects) => {
     const collaborations = {};
     error = '';
 
-    projects.forEach(project => {
+    // Filter only valid project entries
+    projects.filter(p => p.EmpID).forEach(project => {
         //Trim all incoming keys in case of unwated spaces from CSV file
         Object.keys(project).forEach(k => project[k.trim()] = project[k]);
         validateProjectData(project);
@@ -53,8 +54,9 @@ export const extractLongestCommonProject = (projects) => {
             startDate = getDate(project.DateFrom),
             endDate = getDate(project.DateTo);
 
-        projects.forEach(secondProject => {
-            if (secondProject.EmpID === employee) return;
+        // Filter only valid project entries
+        projects.filter(p => p.EmpID).forEach(secondProject => {
+            if (!secondProject.EmpID || secondProject.EmpID === employee) return;
             //Trim all incoming keys in case of unwated spaces from CSV file
             Object.keys(secondProject).forEach(k => secondProject[k.trim()] = secondProject[k]);
 
@@ -67,26 +69,26 @@ export const extractLongestCommonProject = (projects) => {
                 daysDiff = Math.abs(latestStart.diff(earliestEnd, 'days')),
                 // Use a distinct collaboration key to aviod duplication, due to project overlap
                 collaborationKey = [employee, secondEmployee].sort().join(', ');
-            
+
             if (projectId === secondProjectId
                 && latestStart < earliestEnd) {
-                    if (!collaborations[collaborationKey]) {
-                        collaborations[collaborationKey] = {
-                            totalDays: 0,
-                            pairs: []
-                        };
-                    }
-                    // Avoid publishing duplicate data
-                    if (collaborations[collaborationKey].pairs.some(p => p.employeePair === collaborationKey && p.projectId === projectId)) return;
-                    collaborations[collaborationKey].pairs.push({
-                            employeePair: collaborationKey,
-                            days: daysDiff,
-                            projectId: projectId
-                    });
-                    collaborations[collaborationKey].totalDays += daysDiff;
+                if (!collaborations[collaborationKey]) {
+                    collaborations[collaborationKey] = {
+                        totalDays: 0,
+                        pairs: []
+                    };
+                }
+                // Avoid publishing duplicate data
+                if (collaborations[collaborationKey].pairs.some(p => p.employeePair === collaborationKey && p.projectId === projectId)) return;
+                collaborations[collaborationKey].pairs.push({
+                    employeePair: collaborationKey,
+                    days: daysDiff,
+                    projectId: projectId
+                });
+                collaborations[collaborationKey].totalDays += daysDiff;
             }
         });
     });
 
-    return error.length ? {error} : getLongestCollaboration(collaborations);
+    return error.length ? { error } : getLongestCollaboration(collaborations);
 }

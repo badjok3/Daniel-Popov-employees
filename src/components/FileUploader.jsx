@@ -37,8 +37,8 @@ export const FileUploader = memo(() => {
             complete: function (results) {
                 const projectData = extractLongestCommonProject(results.data)
                 fileRef.current.value = null;
-                if (projectData.error) {
-                    setError(projectData.error);
+                if (projectData.error || !projectData.totalDays) {
+                    setError(projectData.error ?? 'There are no pairs of employees who have worked on the same project');
                     return;
                 }
 
