@@ -1,16 +1,11 @@
-import logo from './logo.svg';
-import './App.css';
+import { memo } from 'react';
 import { FileUploader } from './components/FileUploader';
+import './App.css';
 
-function App() {
+export const App = memo(() => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+    <div className="app">
         <FileUploader />
-      </header>
     </div>
   );
-}
-
-export default App;
+});
