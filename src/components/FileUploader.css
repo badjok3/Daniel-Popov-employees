@@ -13,11 +13,6 @@ input[type=file]::file-selector-button:hover {
     background: #e64f06;
 }
 
-.intro {
-    font-size: 35px;
-    padding-top: 5rem;
-}
-
 .custom-file-input {
     padding: 5rem 0;
     display: flex;

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import toastr from 'toastr'
-import {EMPID_ERROR, PROJECTID_ERROR, DATEFROM_ERROR, DATETO_ERROR} from '../constants/notifications';
+import { EMPID_ERROR, PROJECTID_ERROR, DATEFROM_ERROR, DATETO_ERROR } from '../constants/notifications';
 
 const getLongestCollaboration = (collaborations) => {
     let longestCollaboration = {
@@ -47,14 +47,12 @@ export const validateProjectData = (project) => {
 
 export const extractLongestCommonProject = (projects) => {
     const collaborations = {};
-    let error = '';
 
     // Filter only valid project entries
     for (let project of projects.filter(p => p.EmpID)) {
         //Trim all incoming keys in case of unwated spaces from CSV file
         Object.keys(project).forEach(k => project[k.trim()] = project[k]);
-        error = validateProjectData(project);
-        if (error) return;
+        if (validateProjectData(project)) return;
 
         const employee = project.EmpID,
             projectId = project.ProjectID,

@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { memo } from 'react';
 import { TableRow } from './TableRow';
-import './Table.css';
 
 export const Table = memo(() => {
     const data = useSelector(state => state.project.data);

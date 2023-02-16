@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import './Table.css';
+import './TableRow.css';
 
 export const TableRow = memo((props) => {
     const { row } = props;

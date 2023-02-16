@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useState, useRef } from 'react';
 import Papa from 'papaparse';
+import toastr from 'toastr';
 import { useDispatch } from 'react-redux';
 import { loadData, clearData } from '../store/reducer';
 import { extractLongestCommonProject } from '../utils/common';
-import toastr from 'toastr';
 import { SELECT_FILE_ERROR, SELECT_CSV_FILE_ERROR, CLEAR_SUCCESS, FILE_UPLOAD_SUCCESS } from '../constants/notifications'
 import './FileUploader.css';
 
@@ -55,7 +55,6 @@ export const FileUploader = memo(() => {
 
     return (
         <>
-            <div className='intro'>Daniel Popov's <b>Pair of employees who have worked together</b> solution</div>
             <input type='file' ref={fileRef} className='custom-file-input' accept=".csv" onChange={handleFileChange} />
             <div className='button-wrapper'>
                 <button onClick={onFileUploadClick} className='upload-button'>Upload</button>
