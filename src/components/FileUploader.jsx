@@ -1,33 +1,31 @@
 import React, { memo, useCallback, useState, useRef } from 'react';
 import Papa from 'papaparse';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { loadData, clearData } from '../store/reducer';
-import { Table } from './Table';
 import { extractLongestCommonProject } from '../utils/common';
+import toastr from 'toastr';
+import { SELECT_FILE_ERROR, SELECT_CSV_FILE_ERROR, CLEAR_SUCCESS, FILE_UPLOAD_SUCCESS } from '../constants/notifications'
 import './FileUploader.css';
 
 export const FileUploader = memo(() => {
     const dispatch = useDispatch();
-    const data = useSelector(state => state.project.data);
     const [file, setFile] = useState(null);
-    const [error, setError] = useState('');
     const fileRef = useRef(null);
 
     const handleFileChange = useCallback((event) => {
         const currentFile = event.target.files[0];
 
         if (currentFile.name.indexOf('.csv') === -1) {
-            setError('Please select a .csv file');
+            toastr.error(SELECT_CSV_FILE_ERROR);
             setFile(null);
             return;
         }
-        setError('');
         setFile(currentFile);
-    }, [setFile, setError]);
+    }, [setFile]);
 
     const onFileUploadClick = () => {
-        if (!file || error) {
-            setError(error ? error : 'Please select a file');
+        if (!file) {
+            toastr.error(SELECT_FILE_ERROR);
             return;
         }
 
@@ -37,11 +35,11 @@ export const FileUploader = memo(() => {
             complete: function (results) {
                 const projectData = extractLongestCommonProject(results.data)
                 fileRef.current.value = null;
-                if (projectData.error || !projectData.totalDays) {
-                    setError(projectData.error ?? 'There are no pairs of employees who have worked on the same project');
+                if (!projectData || !projectData.totalDays) {
                     return;
                 }
 
+                toastr.success(FILE_UPLOAD_SUCCESS);
                 dispatch(loadData({ file: file.name, data: projectData }));
                 setFile(null);
             }
@@ -51,7 +49,7 @@ export const FileUploader = memo(() => {
     const onClearDataClick = () => {
         fileRef.current.value = null;
         setFile(null);
-        setError('');
+        toastr.success(CLEAR_SUCCESS);
         dispatch(clearData());
     };
 
@@ -62,14 +60,6 @@ export const FileUploader = memo(() => {
             <div className='button-wrapper'>
                 <button onClick={onFileUploadClick} className='upload-button'>Upload</button>
                 <button onClick={onClearDataClick} className='clear-button'>Clear Data</button>
-            </div>
-
-            {error ? <div className='error'>{error}</div> : null}
-
-            <div>
-                {data.map((row, index) => (
-                    <Table key={index} table={row} />
-                ))}
             </div>
         </>
     );

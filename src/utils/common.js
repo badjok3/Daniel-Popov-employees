@@ -1,6 +1,6 @@
 import moment from 'moment';
-
-let error = '';
+import toastr from 'toastr'
+import {EMPID_ERROR, PROJECTID_ERROR, DATEFROM_ERROR, DATETO_ERROR} from '../constants/notifications';
 
 const getLongestCollaboration = (collaborations) => {
     let longestCollaboration = {
@@ -15,6 +15,9 @@ const getLongestCollaboration = (collaborations) => {
         }
     };
 
+    if (!longestCollaboration.totalDays) {
+        toastr.error('There are no pairs of employees who have worked on the same project');
+    }
     return longestCollaboration;
 };
 
@@ -22,32 +25,36 @@ const getDate = (date) => moment(date === "NULL" ? new Date() : date.replace(/\.
 
 export const validateProjectData = (project) => {
     if (!project.hasOwnProperty("EmpID") || typeof project.EmpID !== "number") {
-        error = "Each project must have a numeric EmpID property.";
+        toastr.error(EMPID_ERROR);
+        return EMPID_ERROR;
     }
 
     if (!project.hasOwnProperty("ProjectID") || typeof project.ProjectID !== "number") {
-        error = "Each project must have a numeric ProjectID property.";
+        toastr.error(PROJECTID_ERROR);
+        return PROJECTID_ERROR;
     }
 
     if (!project.hasOwnProperty("DateFrom") || !(new Date(project.DateFrom) instanceof Date)) {
-        error = "Each project must have a valid DateFrom property in a valid format.";
+        toastr.error(DATEFROM_ERROR);
+        return DATEFROM_ERROR;
     }
 
     if (!project.hasOwnProperty("DateTo") || (project.DateTo !== "NULL" && !(new Date(project.DateTo) instanceof Date))) {
-        error = "Each project must have a valid DateTo property in a valid format 'YYYY-MM-DD' or the value 'NULL'.";
+        toastr.error(DATETO_ERROR);
+        return DATETO_ERROR;
     }
 };
 
 export const extractLongestCommonProject = (projects) => {
     const collaborations = {};
-    error = '';
+    let error = '';
 
     // Filter only valid project entries
-    projects.filter(p => p.EmpID).forEach(project => {
+    for (let project of projects.filter(p => p.EmpID)) {
         //Trim all incoming keys in case of unwated spaces from CSV file
         Object.keys(project).forEach(k => project[k.trim()] = project[k]);
-        validateProjectData(project);
-        if (error.length) return
+        error = validateProjectData(project);
+        if (error) return;
 
         const employee = project.EmpID,
             projectId = project.ProjectID,
@@ -88,7 +95,7 @@ export const extractLongestCommonProject = (projects) => {
                 collaborations[collaborationKey].totalDays += daysDiff;
             }
         });
-    });
+    };
 
-    return error.length ? { error } : getLongestCollaboration(collaborations);
+    return getLongestCollaboration(collaborations);
 }
