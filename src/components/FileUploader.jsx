@@ -23,7 +23,7 @@ export const FileUploader = memo(() => {
         setFile(currentFile);
     }, [setFile]);
 
-    const onFileUploadClick = () => {
+    const onFileUploadClick = useCallback(() => {
         if (!file) {
             toastr.error(SELECT_FILE_ERROR);
             return;
@@ -44,14 +44,14 @@ export const FileUploader = memo(() => {
                 setFile(null);
             }
         });
-    };
+    }, [file, dispatch]);
 
-    const onClearDataClick = () => {
+    const onClearDataClick = useCallback(() => {
         fileRef.current.value = null;
         setFile(null);
         toastr.success(CLEAR_SUCCESS);
         dispatch(clearData());
-    };
+    }, [fileRef, dispatch]);
 
     return (
         <>
